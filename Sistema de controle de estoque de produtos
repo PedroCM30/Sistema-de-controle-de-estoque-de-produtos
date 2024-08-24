@@ -1,0 +1,111 @@
+import csv
+import os
+
+# Nome do arquivo CSV
+ARQUIVO_ESTOQUE = 'estoque.csv'
+
+# Verifica se o arquivo já existe e cria o cabeçalho se necessário
+def inicializar_arquivo():
+    if not os.path.isfile(ARQUIVO_ESTOQUE):
+        with open(ARQUIVO_ESTOQUE, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['ID', 'Nome', 'Quantidade', 'Preço'])
+
+# Adiciona um novo produto ao estoque
+def adicionar_produto(id, nome, quantidade, preco):
+    with open(ARQUIVO_ESTOQUE, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([id, nome, quantidade, preco])
+    print(f"Produto {nome} adicionado com sucesso.")
+
+# Atualiza a quantidade de um produto existente
+def atualizar_quantidade(id, nova_quantidade):
+    produtos = []
+    atualizado = False
+    with open(ARQUIVO_ESTOQUE, mode='r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Pular cabeçalho
+        for row in reader:
+            if row[0] == id:
+                row[2] = nova_quantidade
+                atualizado = True
+            produtos.append(row)
+
+    if atualizado:
+        with open(ARQUIVO_ESTOQUE, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['ID', 'Nome', 'Quantidade', 'Preço'])
+            writer.writerows(produtos)
+        print(f"Quantidade do produto com ID {id} atualizada.")
+    else:
+        print(f"Produto com ID {id} não encontrado.")
+
+# Remove um produto do estoque
+def remover_produto(id):
+    produtos = []
+    removido = False
+    with open(ARQUIVO_ESTOQUE, mode='r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Pular cabeçalho
+        for row in reader:
+            if row[0] != id:
+                produtos.append(row)
+            else:
+                removido = True
+
+    if removido:
+        with open(ARQUIVO_ESTOQUE, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['ID', 'Nome', 'Quantidade', 'Preço'])
+            writer.writerows(produtos)
+        print(f"Produto com ID {id} removido.")
+    else:
+        print(f"Produto com ID {id} não encontrado.")
+
+# Consulta o estoque para um produto específico
+def consultar_produto(id):
+    with open(ARQUIVO_ESTOQUE, mode='r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Pular cabeçalho
+        for row in reader:
+            if row[0] == id:
+                print(f"ID: {row[0]}, Nome: {row[1]}, Quantidade: {row[2]}, Preço: {row[3]}")
+                return
+    print(f"Produto com ID {id} não encontrado.")
+
+# Interface de linha de comando
+def menu():
+    inicializar_arquivo()
+    while True:
+        print("\nSistema de Gestão de Estoque")
+        print("1. Adicionar Produto")
+        print("2. Atualizar Quantidade")
+        print("3. Remover Produto")
+        print("4. Consultar Produto")
+        print("5. Sair")
+        
+        escolha = input("Escolha uma opção: ")
+
+        if escolha == '1':
+            id = input("ID do produto: ")
+            nome = input("Nome do produto: ")
+            quantidade = input("Quantidade: ")
+            preco = input("Preço: ")
+            adicionar_produto(id, nome, quantidade, preco)
+        elif escolha == '2':
+            id = input("ID do produto: ")
+            nova_quantidade = input("Nova quantidade: ")
+            atualizar_quantidade(id, nova_quantidade)
+        elif escolha == '3':
+            id = input("ID do produto: ")
+            remover_produto(id)
+        elif escolha == '4':
+            id = input("ID do produto: ")
+            consultar_produto(id)
+        elif escolha == '5':
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+if __name__ == "__main__":
+    menu()
